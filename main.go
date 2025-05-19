@@ -8,7 +8,11 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
+	"github.com/charmbracelet/bubbles/spinner"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/joho/godotenv"
 )
 
@@ -26,40 +30,152 @@ type FormattedResearch struct {
 	SourceLinks []string
 }
 
-func OpenAI(question string) (string, error) {
-	godotenv.Load()
-	var openaiPayload map[string]interface{}
-	var openaiKey string
+var spinnerLine = spinner.Line
+var spinnerDot = spinner.Dot
+var spinnerMiniDot = spinner.MiniDot
+var spinnerJump = spinner.Jump
+var spinnerPulse = spinner.Pulse
+var spinnerPoints = spinner.Points
+var spinnerGlobe = spinner.Globe
+var spinnerMoon = spinner.Moon
+var spinnerMonkey = spinner.Monkey
 
-	openaiKey = os.Getenv("OPENAI_API_KEY")
-	openaiPayload = map[string]interface{}{
-		"model": "gpt-3.5-turbo",
-		"messages": []map[string]string{
-			{"role": "system", "content": "You are a research assistant that provides concise, factual information with source links. Use subtle and aesthetically pleasing emojis where appropriate to enhance readability and engagement. Format the output as plain text suitable for a terminal, avoiding markdown or excessive indentation."},
-			{"role": "user", "content": question + "\n\nProvide a concise summary using relevant emojis, 3-5 key points, and credible source links. Ensure the output is plain text and terminal-friendly."},
-		},
+var spinners = []spinner.Spinner{
+	spinnerLine,
+	spinnerDot,
+	spinnerMiniDot,
+	spinnerJump,
+	spinnerPulse,
+	spinnerPoints,
+	spinnerGlobe,
+	spinnerMoon,
+	spinnerMonkey,
+}
+
+var textStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("252")).Render
+var spinnerStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("69"))
+
+// Loading state
+const (
+	stateLoading = iota
+	stateResult
+)
+
+type state int
+
+type model struct {
+	spinner      spinner.Model
+	loadingState state
+	question     string
+	spinnerIndex int
+	fallback     bool
+	result       FormattedResearch
+}
+
+// LLM result message
+type llmResultMsg struct {
+	Research FormattedResearch
+}
+
+func initialModel(question string) model {
+	m := model{
+		spinner:      spinner.New(),
+		loadingState: stateLoading,
+		question:     question,
+		spinnerIndex: 1,
+		fallback:     false,
 	}
+	m.spinner.Spinner = spinners[m.spinnerIndex]
+	m.spinner.Style = spinnerStyle
+	return m
+}
 
-	openaiBody, _ := json.Marshal(openaiPayload)
-	openaiReq, _ := http.NewRequest("POST", "https://api.openai.com/v1/chat/completions", bytes.NewBuffer(openaiBody))
-	openaiReq.Header.Set("Authorization", "Bearer "+openaiKey)
-	openaiReq.Header.Set("Content-Type", "application/json")
-	openaiResp, err := http.DefaultClient.Do(openaiReq)
+func (m model) Init() tea.Cmd {
+	return tea.Batch(
+		m.spinner.Tick,
+		timeoutCmd(),
+		getLLMResearchCmd(m.question),
+	)
+}
 
-	if err != nil {
-		return "", err
+func timeoutCmd() tea.Cmd {
+	return func() tea.Msg {
+		time.Sleep(15 * time.Second)
+		return fallbackMsg{}
 	}
+}
 
-	defer openaiResp.Body.Close()
-	body, _ := io.ReadAll(openaiResp.Body)
+type fallbackMsg struct{}
 
-	var response OpenAIResponse
-	err = json.Unmarshal(body, &response)
-	if err != nil || len(response.Choices) == 0 {
-		return string(body), nil // Return raw response if parsing fails
+func getLLMResearchCmd(question string) tea.Cmd {
+	return func() tea.Msg {
+		research := FormatResearch(question)
+		return llmResultMsg{Research: research}
 	}
+}
 
-	return response.Choices[0].Message.Content, nil
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case spinner.TickMsg:
+		var cmd tea.Cmd
+		m.spinner, cmd = m.spinner.Update(msg)
+		return m, cmd
+	case fallbackMsg:
+		if m.loadingState == stateLoading {
+			m.fallback = true
+			return m, tea.Quit
+		}
+		return m, nil
+	case llmResultMsg:
+		if m.loadingState == stateLoading && !m.fallback {
+			m.result = msg.Research
+			m.loadingState = stateResult
+			return m, tea.Quit
+		}
+		return m, nil
+	}
+	return m, nil
+}
+
+func loadingView(m model) string {
+	gap := " "
+	if m.spinnerIndex == 1 {
+		gap = ""
+	}
+	if m.fallback {
+		return textStyle("\nLost in the tunnel of knowledge. Please try again later.\n")
+	}
+	return fmt.Sprintf("\n %s%s%s\n\n", m.spinner.View(), gap, textStyle("Digging with LLM..."))
+}
+
+func resultView(m model) string {
+	b := strings.Builder{}
+	b.WriteString("\n✨ === DIG RESEARCH RESULTS === ✨\n")
+	b.WriteString("\n✨ SUMMARY:\n")
+	b.WriteString(textStyle(m.result.Summary) + "\n")
+	if len(m.result.KeyPoints) > 0 {
+		b.WriteString("\n💡 KEY POINTS:\n")
+		for i, point := range m.result.KeyPoints {
+			b.WriteString(fmt.Sprintf("➤ %d. %s\n", i+1, point))
+		}
+	}
+	if len(m.result.SourceLinks) > 0 {
+		b.WriteString("\n🔗 SOURCES:\n")
+		for _, source := range m.result.SourceLinks {
+			b.WriteString("➤ " + source + "\n")
+		}
+	}
+	b.WriteString("\n✨ ========================== ✨\n")
+	return b.String()
+}
+
+func (m model) View() string {
+	switch m.loadingState {
+	case stateResult:
+		return resultView(m)
+	default:
+		return loadingView(m)
+	}
 }
 
 func FormatResearch(query string) FormattedResearch {
@@ -147,6 +263,41 @@ func PrintFormattedResearch(research FormattedResearch) {
 	fmt.Println("\n✨ ========================== ✨")
 }
 
+func OpenAI(question string) (string, error) {
+	godotenv.Load()
+	var openaiPayload map[string]interface{}
+
+	openaiKey := os.Getenv("OPENAI_API_KEY")
+	openaiPayload = map[string]interface{}{
+		"model": "gpt-3.5-turbo",
+		"messages": []map[string]string{
+			{"role": "system", "content": "You are a research assistant that provides concise, factual information with source links. Use subtle and aesthetically pleasing emojis where appropriate to enhance readability and engagement. Format the output as plain text suitable for a terminal, avoiding markdown or excessive indentation."},
+			{"role": "user", "content": question + "\n\nProvide a concise summary using relevant emojis, 3-5 key points, and credible source links. Ensure the output is plain text and terminal-friendly."},
+		},
+	}
+
+	openaiBody, _ := json.Marshal(openaiPayload)
+	openaiReq, _ := http.NewRequest("POST", "https://api.openai.com/v1/chat/completions", bytes.NewBuffer(openaiBody))
+	openaiReq.Header.Set("Authorization", "Bearer "+openaiKey)
+	openaiReq.Header.Set("Content-Type", "application/json")
+	openaiResp, err := http.DefaultClient.Do(openaiReq)
+
+	if err != nil {
+		return "", err
+	}
+
+	defer openaiResp.Body.Close()
+	body, _ := io.ReadAll(openaiResp.Body)
+
+	var response OpenAIResponse
+	err = json.Unmarshal(body, &response)
+	if err != nil || len(response.Choices) == 0 {
+		return string(body), nil // Return raw response if parsing fails
+	}
+
+	return response.Choices[0].Message.Content, nil
+}
+
 func Perplexity(question string) {
 	godotenv.Load()
 	perplexityKey := os.Getenv("PERPLEXITY_API_KEY")
@@ -174,16 +325,17 @@ func Perplexity(question string) {
 }
 
 func main() {
-	var question string
-
 	if len(os.Args) < 2 {
 		fmt.Println("Please provide a querry")
 		return
 	}
-
 	godotenv.Load()
-	question = os.Args[1]
+	question := os.Args[1]
+	m := initialModel(question)
 
-	research := FormatResearch(question)
-	PrintFormattedResearch(research)
+	_, err := tea.NewProgram(m).Run()
+	if err != nil {
+		fmt.Println("could not run program:", err)
+		os.Exit(1)
+	}
 }
