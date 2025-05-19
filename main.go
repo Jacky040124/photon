@@ -271,7 +271,7 @@ func OpenAI(question string) (string, error) {
 	openaiPayload = map[string]interface{}{
 		"model": "gpt-3.5-turbo",
 		"messages": []map[string]string{
-			{"role": "system", "content": "You are a research assistant that provides concise, factual information with source links. Use subtle and aesthetically pleasing emojis where appropriate to enhance readability and engagement. Format the output as plain text suitable for a terminal, avoiding markdown or excessive indentation."},
+			{"role": "system", "content": "You are a research assistant that provides concise, factual information with source links. Use subtle and aesthetically pleasing emojis where appropriate to enhance readability and engagement. Format the output in terminal friendly format, avoiding markdown or excessive indentation."},
 			{"role": "user", "content": question + "\n\nProvide a concise summary using relevant emojis, 3-5 key points, and credible source links. Ensure the output is plain text and terminal-friendly."},
 		},
 	}
@@ -335,7 +335,7 @@ func main() {
 
 	_, err := tea.NewProgram(m).Run()
 	if err != nil {
-		fmt.Println("could not run program:", err)
+		fmt.Println("could not run program:", err) 
 		os.Exit(1)
 	}
 }
