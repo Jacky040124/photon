@@ -52,7 +52,7 @@ func RenderLoadingView(uiModel UIModel) string {
 // RenderResultView renders the formatted research results
 func RenderResultView(result FormattedResponse) string {
 	b := strings.Builder{}
-	b.WriteString("\n" + CyanBold("✨ === DIG RESEARCH RESULTS === ✨") + "\n")
+	b.WriteString("\n" + CyanBold("✨ === PHOTON RESEARCH RESULTS === ✨") + "\n")
 	b.WriteString("\n" + YellowBold("✨ SUMMARY:") + "\n")
 	b.WriteString(White(result.Summary) + "\n")
 
