@@ -8,11 +8,11 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/joho/godotenv"
+	"github.com/spf13/cobra"
 
-	"github.com/jacky/dig/pkg"
+	"github.com/Jacky040124/photon/pkg"
 )
 
-// Loading state constants
 const (
 	stateLoading = iota
 	stateResult
@@ -25,11 +25,11 @@ type model struct {
 	loadingState state
 	question     string
 	fallback     bool
-	result       pkg.FormattedResearch
+	result       pkg.FormattedResponse
 }
 
 type llmResultMsg struct {
-	Research pkg.FormattedResearch
+	Research pkg.FormattedResponse
 }
 
 func initialModel(question string) model {
@@ -98,25 +98,35 @@ func (m model) View() string {
 			Fallback: m.fallback,
 			Result:   m.result,
 		}
-		return pkg.RenderLoadingView(uiModel)
+	return pkg.RenderLoadingView(uiModel)
 	}
 }
 
+var rootCmd = &cobra.Command{
+	Use:   "ptn [query]",
+	Short: "Packets of pure knowledge at light speed",
+	Long:  "Photon is a lightning-fast terminal research tool that delivers packets of pure knowledge at light speed.",
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		if err := godotenv.Load("configs/.env"); err != nil {
+			fmt.Println(pkg.RedBold("Error loading .env file: ") + err.Error())
+			os.Exit(1)
+		}
+
+		question := args[0]
+		m := initialModel(question)
+
+		_, err := tea.NewProgram(m).Run()
+		if err != nil {
+			fmt.Println(pkg.RedBold("could not run program: ") + err.Error())
+			os.Exit(1)
+		}
+	},
+}
+
 func main() {
-	if len(os.Args) < 2 {
-		fmt.Println(pkg.RedBold("Please provide a query"))
-		return
-	}
-
-	// Load config from configs directory
-	godotenv.Load("../configs/.env")
-
-	question := os.Args[1]
-	m := initialModel(question)
-
-	_, err := tea.NewProgram(m).Run()
-	if err != nil {
-		fmt.Println(pkg.RedBold("could not run program: ") + err.Error())
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Println(pkg.RedBold("Error: ") + err.Error())
 		os.Exit(1)
 	}
 }

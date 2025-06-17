@@ -1,0 +1,16 @@
+{
+  "app": {
+    "name": "photon",
+    "version": "1.0.0",
+    "description": "Packets of pure knowledge at light speed"
+  },
+  "api": {
+    "model": "mistralai/mistral-small",
+    "timeout": 15,
+    "endpoint": "https://openrouter.ai/api/v1/chat/completions"
+  },
+  "ui": {
+    "spinner_style": "dot",
+    "spinner_color": "69"
+  }
+} 

@@ -1,26 +1,27 @@
-# dig
+# Photon
 
-**dig** is a high-performance, developer-friendly terminal research tool that delivers concise, structured summaries on any topic you ask. Just type a query like:
+**Photon** is a lightning-fast, developer-friendly terminal research tool that delivers packets of pure knowledge at light speed. Powered by OpenRouter's free Mistral 3.1 model, just type a query like:
 
 ```
-dig "black holes"
+ptn "quantum computing"
 ```
 
-and get an instant, beautifully formatted report—complete with source links for every key piece of information. Ideal for students, developers, and curious minds who want fast, reliable knowledge without leaving the terminal.
+and get an instant, beautifully formatted report with key insights and summaries. Perfect for developers, students, and curious minds who want fast, accurate knowledge without leaving the terminal.
 
 ## Features
-- ⚡ **High Performance:** Fast LLM-backed research with minimal wait.
-- 🖥️ **Beautiful TUI:** Clean, modern terminal interface with spinner and clear output.
-- 🔗 **Source Links:** Every summary includes links to credible sources.
-- 🧑‍💻 **Developer Friendly:** Easy to install, configure, and use.
-- 🚀 **Instant Results:** Get structured, actionable knowledge in seconds.
+- ⚡ **Light Speed:** Packets of pure knowledge delivered instantly via OpenRouter's free Mistral 3.1 small 24b model.
+- 🖥️ **Beautiful TUI:** Clean, modern terminal interface with elegant spinner animations.
+- 🎯 **Focused Output:** Structured summaries and key points without information overload.
+- 🧑‍💻 **Developer Friendly:** Easy to install, configure, and use in any workflow.
+- 🚀 **Instant Results:** Get actionable knowledge in seconds, right in your terminal.
+- 💰 **Cost Effective:** Leverages OpenRouter's free tier for unlimited research.
 
 ## Installation
 
 1. **Clone the repository:**
    ```sh
-   git clone https://github.com/yourusername/dig.git
-   cd dig
+   git clone https://github.com/yourusername/photon.git
+   cd photon
    ```
 
 2. **Install Go dependencies:**
@@ -30,42 +31,52 @@ and get an instant, beautifully formatted report—complete with source links fo
 
 3. **Build the binary:**
    ```sh
-   go build -o dig
+   go build -o ptn ./cmd
    ```
 
 4. **(Optional) Move to your PATH:**
    ```sh
-   mv dig /usr/local/bin/
+   mv ptn /usr/local/bin/
    ```
 
 ## Environment Setup
 
-Create a `.env` file in the project root with your API key(s):
+Create a `.env` file in the `configs/` directory with your OpenRouter API key:
 
 ```
-OPENAI_API_KEY=your_openai_api_key_here
+OPEN_ROUTER_KEY=your_openrouter_api_key_here
 ```
 
-> **Note:** You can get an OpenAI API key from [platform.openai.com](https://platform.openai.com/account/api-keys)
+> **Note:** Get a free OpenRouter API key from [openrouter.ai](https://openrouter.ai) - no credit card required for the free tier!
 
 ## Usage
 
 Just run:
 
 ```
-./dig "your research topic here"
+./ptn "your research topic here"
 ```
 
-Example:
+Examples:
 ```
-./dig "quantum computing"
+ptn "machine learning basics"
+ptn "rust vs go performance"
+ptn "docker best practices"
 ```
 
-## Why dig?
-- No more tab switching or information overload.
-- Get the facts, key points, and sources—instantly.
-- Perfect for quick research, code comments, or learning on the fly.
+## Output Format
+
+**Photon** provides clean, structured output:
+- **Summary**: Concise 2-3 sentence overview
+- **Key Points**: 3-5 essential insights, clearly numbered
+
+## Why Photon?
+- **Zero Context Switching**: Research without leaving your terminal workflow
+- **Instant Knowledge**: Get facts and insights in seconds, not minutes
+- **Developer Optimized**: Perfect for code comments, documentation, or quick learning
+- **Free & Fast**: Powered by OpenRouter's free tier with Mistral 3.1 performance
+- **Clean Output**: No ads, no clutter, just the information you need
 
 ---
 
-**dig** — Fast, reliable knowledge, right in your terminal. 
+**Photon** — Packets of pure knowledge at light speed, right in your terminal. Powered by OpenRouter. 
