@@ -44,7 +44,7 @@ and get an instant, beautifully formatted report with key insights and summaries
 Create a `.env` file in the `configs/` directory with your OpenRouter API key:
 
 ```
-OPEN_ROUTER_KEY=your_openrouter_api_key_here
+PHOTON_OPEN_ROUTER_KEY=your_openrouter_api_key_here
 ```
 
 > **Note:** Get a free OpenRouter API key from [openrouter.ai](https://openrouter.ai) - no credit card required for the free tier!

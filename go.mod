@@ -7,7 +7,6 @@ require (
 	github.com/charmbracelet/bubbletea v1.3.5
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/fatih/color v1.18.0
-	github.com/joho/godotenv v1.5.1
 	github.com/spf13/cobra v1.9.1
 )
 

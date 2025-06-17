@@ -2,13 +2,10 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/joho/godotenv"
-	"github.com/spf13/cobra"
 
 	"github.com/Jacky040124/photon/pkg"
 )
@@ -20,16 +17,18 @@ const (
 
 type state int
 
+type fallbackMsg struct{}
+
+type llmResultMsg struct {
+	Research pkg.FormattedResponse
+}
+
 type model struct {
 	spinner      spinner.Model
 	loadingState state
 	question     string
 	fallback     bool
 	result       pkg.FormattedResponse
-}
-
-type llmResultMsg struct {
-	Research pkg.FormattedResponse
 }
 
 func initialModel(question string) model {
@@ -47,22 +46,6 @@ func (m model) Init() tea.Cmd {
 		timeoutCmd(),
 		getLLMResearchCmd(m.question),
 	)
-}
-
-func timeoutCmd() tea.Cmd {
-	return func() tea.Msg {
-		time.Sleep(15 * time.Second)
-		return fallbackMsg{}
-	}
-}
-
-type fallbackMsg struct{}
-
-func getLLMResearchCmd(question string) tea.Cmd {
-	return func() tea.Msg {
-		research := pkg.FormatResearch(question)
-		return llmResultMsg{Research: research}
-	}
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -98,35 +81,33 @@ func (m model) View() string {
 			Fallback: m.fallback,
 			Result:   m.result,
 		}
-	return pkg.RenderLoadingView(uiModel)
+		return pkg.RenderLoadingView(uiModel)
 	}
 }
 
-var rootCmd = &cobra.Command{
-	Use:   "ptn [query]",
-	Short: "Packets of pure knowledge at light speed",
-	Long:  "Photon is a lightning-fast terminal research tool that delivers packets of pure knowledge at light speed.",
-	Args:  cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		if err := godotenv.Load("configs/.env"); err != nil {
-			fmt.Println(pkg.RedBold("Error loading .env file: ") + err.Error())
-			os.Exit(1)
-		}
+func timeoutCmd() tea.Cmd {
+	return func() tea.Msg {
+		time.Sleep(15 * time.Second)
+		return fallbackMsg{}
+	}
+}
 
-		question := args[0]
-		m := initialModel(question)
-
-		_, err := tea.NewProgram(m).Run()
+func getLLMResearchCmd(question string) tea.Cmd {
+	return func() tea.Msg {
+		// Load config to get current model
+		config, err := LoadConfig()
 		if err != nil {
-			fmt.Println(pkg.RedBold("could not run program: ") + err.Error())
-			os.Exit(1)
+			return llmResultMsg{Research: pkg.FormattedResponse{
+				Summary: fmt.Sprintf("Error loading config: %s", err.Error()),
+			}}
 		}
-	},
+		
+		// Use the configured model
+		research := pkg.FormatWithModel(question, config.GetCurrentModel())
+		return llmResultMsg{Research: research}
+	}
 }
 
 func main() {
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(pkg.RedBold("Error: ") + err.Error())
-		os.Exit(1)
-	}
+	Execute()
 }
