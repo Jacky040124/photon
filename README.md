@@ -1,50 +1,51 @@
 # Photon
 
-**Photon** is a lightning-fast, developer-friendly terminal research tool that delivers packets of pure knowledge at light speed. Powered by OpenRouter's free Mistral 3.1 model, just type a query like:
+**Research. Instantly.**
 
+The terminal research tool for people who value speed and simplicity. Ask anything, get answers in seconds, work from anywhere.
+
+## What makes it different
+
+**Fast** — Sub-second AI responses  
+**Light** — 3MB binary, zero setup  
+**Free** — Unlimited queries, always  
+**Global** — Works everywhere, including China  
+
+## For developers who think in terminal
+
+```bash
+ptn "quantum computing basics"
+# → Instant, structured insights
+# → No context switching
+# → No distractions
 ```
-ptn "quantum computing"
-```
 
-and get an instant, beautifully formatted report with key insights and summaries. Perfect for developers, students, and curious minds who want fast, accurate knowledge without leaving the terminal.
-
-## Features
-- ⚡ **Light Speed:** Packets of pure knowledge delivered instantly via OpenRouter's free Mistral 3.1 small 24b model.
-- 🖥️ **Beautiful TUI:** Clean, modern terminal interface with elegant spinner animations.
-- 🎯 **Focused Output:** Structured summaries and key points without information overload.
-- 🧑‍💻 **Developer Friendly:** Easy to install, configure, and use in any workflow.
-- 🚀 **Instant Results:** Get actionable knowledge in seconds, right in your terminal.
-- 💰 **Cost Effective:** Leverages OpenRouter's free tier for unlimited research.
+**Simple tools. Powerful results.**
 
 ## Installation
 
-1. **Clone the repository:**
-   ```sh
-   git clone https://github.com/yourusername/photon.git
-   cd photon
-   ```
-
-2. **Install Go dependencies:**
-   ```sh
-   go mod tidy
-   ```
-
-3. **Build the binary:**
-   ```sh
-   go build -o ptn ./cmd
-   ```
-
-4. **(Optional) Move to your PATH:**
-   ```sh
-   mv ptn /usr/local/bin/
-   ```
-
-## Environment Setup
-
-Create a `.env` file in the `configs/` directory with your OpenRouter API key:
-
+### Homebrew (Recommended)
+```bash
+brew tap Jacky040124/photon
+brew install photon
 ```
-PHOTON_OPEN_ROUTER_KEY=your_openrouter_api_key_here
+
+### Manual Download
+Download pre-built binaries from [GitHub Releases](https://github.com/Jacky040124/photon/releases) and add to your PATH.
+
+### Build from Source
+```bash
+git clone https://github.com/Jacky040124/photon.git
+cd photon
+go build -o ptn ./cmd
+mv ptn /usr/local/bin/
+```
+
+## Setup
+
+Set your OpenRouter API key:
+```bash
+export PHOTON_OPEN_ROUTER_KEY="your_openrouter_api_key_here"
 ```
 
 > **Note:** Get a free OpenRouter API key from [openrouter.ai](https://openrouter.ai) - no credit card required for the free tier!
@@ -70,13 +71,6 @@ ptn "docker best practices"
 - **Summary**: Concise 2-3 sentence overview
 - **Key Points**: 3-5 essential insights, clearly numbered
 
-## Why Photon?
-- **Zero Context Switching**: Research without leaving your terminal workflow
-- **Instant Knowledge**: Get facts and insights in seconds, not minutes
-- **Developer Optimized**: Perfect for code comments, documentation, or quick learning
-- **Free & Fast**: Powered by OpenRouter's free tier with Mistral 3.1 performance
-- **Clean Output**: No ads, no clutter, just the information you need
-
 ---
 
-**Photon** — Packets of pure knowledge at light speed, right in your terminal. Powered by OpenRouter. 
+**Photon** — Simple tools. Powerful results. 
