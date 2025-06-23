@@ -64,6 +64,17 @@ Set your OpenRouter API key:
 export PHOTON_OPEN_ROUTER_KEY="your_openrouter_api_key_here"
 ```
 
+To make it permanent, add to your shell profile:
+```bash
+# For Zsh (macOS default)
+echo 'export PHOTON_OPEN_ROUTER_KEY="your_key_here"' >> ~/.zshrc
+source ~/.zshrc
+
+# For Bash
+echo 'export PHOTON_OPEN_ROUTER_KEY="your_key_here"' >> ~/.bashrc
+source ~/.bashrc
+```
+
 > **Note:** Get a free OpenRouter API key from [openrouter.ai](https://openrouter.ai) - no credit card required for the free tier!
 
 ## Usage
