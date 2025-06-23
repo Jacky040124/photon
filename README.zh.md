@@ -2,13 +2,13 @@
 
 ---
 
-<div align="center">
-  <img src="public/logo.png" alt="Photon Logo" width="120" height="120">
-</div>
+
 
 # Photon
 
-**秒懂万物**
+<div align="center">
+  <img src="public/logo.png" alt="Photon Logo" width="2000" height="800">
+</div>
 
 专为追求效率的技术人员打造的终端研究神器。随手一问，秒出答案，让知识触手可及。
 

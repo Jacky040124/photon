@@ -2,11 +2,13 @@
 
 ---
 
-<div align="center">
-  <img src="public/logo.png" alt="Photon Logo" width="120" height="120">
-</div>
+
 
 # Photon
+
+<div align="center">
+  <img src="public/logo.png" alt="Photon Logo" width="2000" height="800">
+</div>
 
 **Research. Instantly.**
 
