@@ -7,7 +7,7 @@
 # Photon
 
 <div align="center">
-  <img src="public/logo.png" alt="Photon Logo" width="1000" height="800">
+  <img src="public/logo.png" alt="Photon Logo" width="1000" height="400">
 </div>
 
 **Research. Instantly.**
