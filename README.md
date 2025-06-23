@@ -14,6 +14,12 @@
 
 The terminal research tool for people who value speed and simplicity. Ask anything, get answers in seconds, work from anywhere.
 
+## Demo
+
+<div align="center">
+  <img src="public/demo.gif" alt="Photon Demo" width="800">
+</div>
+
 ## What makes it different
 
 **Fast** — Sub-second AI responses  

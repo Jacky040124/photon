@@ -12,6 +12,12 @@
 
 专为追求效率的技术人员打造的终端研究神器。随手一问，秒出答案，让知识触手可及。
 
+## 演示
+
+<div align="center">
+  <img src="public/demo.gif" alt="Photon Demo" width="800">
+</div>
+
 ## 核心优势
 
 **闪电响应** — 毫秒级 AI 回答  

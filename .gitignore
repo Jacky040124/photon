@@ -1,1 +1,4 @@
 .env
+*.mov
+*.mp4
+*.avi
