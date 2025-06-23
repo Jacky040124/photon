@@ -1,3 +1,11 @@
+[English](README.md) | [中文](README.zh.md)
+
+---
+
+<div align="center">
+  <img src="public/logo.png" alt="Photon Logo" width="120" height="120">
+</div>
+
 # Photon
 
 **Research. Instantly.**
