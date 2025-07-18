@@ -10,6 +10,8 @@ import (
 	"github.com/Jacky040124/photon/pkg"
 )
 
+var onlineModel string
+
 var rootCmd = &cobra.Command{
 	Use:   "ptn [query]",
 	Short: "Packets of pure knowledge at light speed",
@@ -22,7 +24,7 @@ var rootCmd = &cobra.Command{
 			fmt.Println(pkg.RedBold("Error loading config: ") + err.Error())
 			os.Exit(1)
 		}
-		
+
 		err = config.Validate()
 		if err != nil {
 			fmt.Println(pkg.RedBold("Configuration error: ") + err.Error())
@@ -32,7 +34,12 @@ var rootCmd = &cobra.Command{
 		}
 
 		question := args[0]
-		m := initialModel(question)
+		// If --online is set, override the model for this run
+		if onlineModel != "" {
+			config.CurrentModel = "__online__" + onlineModel
+		}
+		// Initialize the TUI with the chosen model ID
+		m := initialModel(question, config.GetCurrentModel())
 
 		_, err = tea.NewProgram(m).Run()
 		if err != nil {
@@ -45,7 +52,9 @@ var rootCmd = &cobra.Command{
 func Execute() {
 	// Add model subcommand
 	rootCmd.AddCommand(modelCmd)
-	
+	// Add --online flag
+	rootCmd.PersistentFlags().StringVar(&onlineModel, "online", "", "Use any OpenRouter model by API name (bypasses local list)")
+
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(pkg.RedBold("Error: ") + err.Error())
 		os.Exit(1)
