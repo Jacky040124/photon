@@ -205,7 +205,45 @@ func CallLLMAPIWithModel(question string, modelID string) (string, error) {
 		return "", fmt.Errorf("PHOTON_OPEN_ROUTER_KEY environment variable is not set")
 	}
 
-	// Get model details
+	// If modelID starts with __online__, treat the rest as the OpenRouter model name
+	if len(modelID) > 10 && modelID[:10] == "__online__" {
+		apiName := modelID[10:]
+		systemPrompt := "You are a research assistant that provides structured, factual information. Format your response with clear sections using exactly these headers: 'Summary:' and 'Key Points:'. Use emojis sparingly and only where they enhance understanding."
+		userPrompt := question + "\n\nPlease structure your response as follows:\n\nSummary:\n[Provide a concise 2-3 sentence summary without numbered points]\n\nKey Points:\n1. [First key point]\n2. [Second key point]\n3. [Third key point]"
+
+		payload := map[string]interface{}{
+			"model": apiName,
+			"messages": []map[string]string{
+				{"role": "system", "content": systemPrompt},
+				{"role": "user", "content": userPrompt},
+			},
+		}
+
+		jsonBody, _ := json.Marshal(payload)
+		req, _ := http.NewRequest("POST", "https://openrouter.ai/api/v1/chat/completions", bytes.NewBuffer(jsonBody))
+		req.Header.Set("Authorization", "Bearer "+openRouterKey)
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("HTTP-Referer", "https://github.com/photon-research-tool")
+		req.Header.Set("X-Title", "Photon Research Tool")
+
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			return "", err
+		}
+
+		defer resp.Body.Close()
+		body, _ := io.ReadAll(resp.Body)
+
+		var response APIResponse
+		err = json.Unmarshal(body, &response)
+		if err != nil || len(response.Choices) == 0 {
+			return string(body), nil // Return raw response if parsing fails
+		}
+
+		return response.Choices[0].Message.Content, nil
+	}
+
+	// Get model details as before
 	model, err := GetModel(modelID)
 	if err != nil {
 		return "", fmt.Errorf("invalid model: %s", err.Error())
@@ -213,7 +251,7 @@ func CallLLMAPIWithModel(question string, modelID string) (string, error) {
 
 	// Create system prompt based on model capabilities
 	systemPrompt := "You are a research assistant that provides structured, factual information. Format your response with clear sections using exactly these headers: 'Summary:' and 'Key Points:'. Use emojis sparingly and only where they enhance understanding."
-	
+
 	userPrompt := question + "\n\nPlease structure your response as follows:\n\nSummary:\n[Provide a concise 2-3 sentence summary without numbered points]\n\nKey Points:\n1. [First key point]\n2. [Second key point]\n3. [Third key point]"
 
 	// Special handling for thinking models

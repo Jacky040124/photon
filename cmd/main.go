@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"strings"
 	"time"
 
 	"github.com/charmbracelet/bubbles/spinner"
@@ -23,19 +23,23 @@ type llmResultMsg struct {
 	Research pkg.FormattedResponse
 }
 
+// model stores TUI state, including the effective model ID
 type model struct {
 	spinner      spinner.Model
 	loadingState state
 	question     string
+	modelID      string
 	fallback     bool
 	result       pkg.FormattedResponse
 }
 
-func initialModel(question string) model {
+// initialModel creates a new TUI model with the question and chosen modelID
+func initialModel(question, modelID string) model {
 	return model{
 		spinner:      pkg.CreateSpinner(),
 		loadingState: stateLoading,
 		question:     question,
+		modelID:      modelID,
 		fallback:     false,
 	}
 }
@@ -44,7 +48,7 @@ func (m model) Init() tea.Cmd {
 	return tea.Batch(
 		m.spinner.Tick,
 		timeoutCmd(),
-		getLLMResearchCmd(m.question),
+		getLLMResearchCmd(m.question, m.modelID),
 	)
 }
 
@@ -74,7 +78,16 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m model) View() string {
 	switch m.loadingState {
 	case stateResult:
-		return pkg.RenderResultView(m.result)
+		// Derive display name from m.modelID
+		var displayName string
+		if mdl, err := pkg.GetModel(m.modelID); err == nil {
+			displayName = mdl.Name
+		} else if strings.HasPrefix(m.modelID, "__online__") {
+			displayName = m.modelID[len("__online__"):]
+		} else {
+			displayName = m.modelID
+		}
+		return pkg.RenderResultView(m.result, displayName)
 	default:
 		uiModel := pkg.UIModel{
 			Spinner:  m.spinner,
@@ -92,18 +105,10 @@ func timeoutCmd() tea.Cmd {
 	}
 }
 
-func getLLMResearchCmd(question string) tea.Cmd {
+// getLLMResearchCmd returns a command that fetches research using the specified modelID
+func getLLMResearchCmd(question, modelID string) tea.Cmd {
 	return func() tea.Msg {
-		// Load config to get current model
-		config, err := LoadConfig()
-		if err != nil {
-			return llmResultMsg{Research: pkg.FormattedResponse{
-				Summary: fmt.Sprintf("Error loading config: %s", err.Error()),
-			}}
-		}
-		
-		// Use the configured model
-		research := pkg.FormatWithModel(question, config.GetCurrentModel())
+		research := pkg.FormatWithModel(question, modelID)
 		return llmResultMsg{Research: research}
 	}
 }
