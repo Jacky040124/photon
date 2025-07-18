@@ -19,13 +19,15 @@ func (c *Config) Validate() error {
 	if c.OpenRouterKey == "" && os.Getenv("PHOTON_OPEN_ROUTER_KEY") == "" {
 		return fmt.Errorf("PHOTON_OPEN_ROUTER_KEY environment variable is required")
 	}
-	
-	// Validate model if set
-	if c.CurrentModel != "" && !pkg.ValidateModel(c.CurrentModel) {
+	// Allow __online__ models to bypass validation
+	if c.CurrentModel != "" && !pkg.ValidateModel(c.CurrentModel) && !isOnlineModel(c.CurrentModel) {
 		return fmt.Errorf("invalid model '%s'", c.CurrentModel)
 	}
-	
 	return nil
+}
+
+func isOnlineModel(modelID string) bool {
+	return len(modelID) > 10 && modelID[:10] == "__online__"
 }
 
 // GetOpenRouterKey returns the API key from config or environment
@@ -49,7 +51,7 @@ func (c *Config) SetCurrentModel(modelID string) error {
 	if !pkg.ValidateModel(modelID) {
 		return fmt.Errorf("invalid model '%s'", modelID)
 	}
-	
+
 	c.CurrentModel = modelID
 	return c.Save()
 }
@@ -60,12 +62,12 @@ func getConfigPath() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	
+
 	configDir := filepath.Join(homeDir, ".photon")
 	if err := os.MkdirAll(configDir, 0755); err != nil {
 		return "", err
 	}
-	
+
 	return filepath.Join(configDir, "config.json"), nil
 }
 
@@ -75,12 +77,12 @@ func (c *Config) Save() error {
 	if err != nil {
 		return err
 	}
-	
+
 	data, err := json.MarshalIndent(c, "", "  ")
 	if err != nil {
 		return err
 	}
-	
+
 	return os.WriteFile(configPath, data, 0644)
 }
 
@@ -89,7 +91,7 @@ func LoadConfig() (*Config, error) {
 	config := &Config{
 		CurrentModel: pkg.GetDefaultModel(),
 	}
-	
+
 	// Try to load from config file
 	configPath, err := getConfigPath()
 	if err == nil {
@@ -97,11 +99,11 @@ func LoadConfig() (*Config, error) {
 			json.Unmarshal(data, config)
 		}
 	}
-	
+
 	// Always prefer environment variable for API key
 	if envKey := os.Getenv("PHOTON_OPEN_ROUTER_KEY"); envKey != "" {
 		config.OpenRouterKey = envKey
 	}
-	
+
 	return config, nil
 }
