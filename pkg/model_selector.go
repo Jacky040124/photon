@@ -62,7 +62,7 @@ type ModelSelectorModel struct {
 // NewModelSelector creates a new model selector
 func NewModelSelector(currentModel string) ModelSelectorModel {
 	models := GetAvailableModels()
-	modelOrder := []string{"deepseek-r1", "deepseek-v3", "llama-4", "gemini", "mistral"}
+	modelOrder := []string{"kimi", "deepseek-r1", "deepseek-v3", "llama-4", "mistral"}
 	
 	// Find current model index for initial cursor position
 	cursor := 0

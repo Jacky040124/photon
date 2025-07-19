@@ -58,17 +58,17 @@ func GetAvailableModels() map[string]Model {
 			IsThinking:   false,
 			IsMultimodal: true,
 		},
-		"gemini": {
-			ID:           "gemini",
-			Name:         "Google Gemini 2.5 Pro",
-			APIName:      "google/gemini-2.5-pro-exp-03-25:free",
-			Description:  "Latest Google model with advanced multimodal capabilities",
-			Provider:     "Google",
-			Features:     []string{"Latest Tech", "Multimodal", "Comprehensive"},
-			ContextLen:   1000000,
-			BestFor:      "Latest AI capabilities, comprehensive research",
+		"kimi": {
+			ID:           "kimi",
+			Name:         "MoonshotAI Kimi K2",
+			APIName:      "moonshotai/kimi-k2:free",
+			Description:  "Advanced Chinese AI model with strong reasoning capabilities",
+			Provider:     "MoonshotAI",
+			Features:     []string{"Strong Reasoning", "Chinese & English", "Code Generation"},
+			ContextLen:   200000,
+			BestFor:      "Bilingual research, code analysis, logical reasoning",
 			IsThinking:   false,
-			IsMultimodal: true,
+			IsMultimodal: false,
 		},
 		"mistral": {
 			ID:           "mistral",
@@ -145,7 +145,7 @@ func FormatModelList(currentModel string) string {
 	
 	b.WriteString(CyanBold("✨ Available Models:\n\n"))
 	
-	for _, id := range []string{"deepseek-r1", "deepseek-v3", "llama-4", "gemini", "mistral"} {
+	for _, id := range []string{"kimi", "deepseek-r1", "deepseek-v3", "llama-4", "mistral"} {
 		model := models[id]
 		current := ""
 		if id == currentModel {
